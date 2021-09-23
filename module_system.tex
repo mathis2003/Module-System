@@ -248,6 +248,31 @@ The solution is clusters. Basically, they are parts of the program where modules
 
 This picture shows how the “interfacing parent” is then again part of the tree structure. The cluster encapsulates modules that can use each other in random ways (as long as the result is an acyclic directed graph). The children (File4\_0, File4\_1 and File4\_2) can be an “interfacing” parent of another lower level cluster or a parent from children in another lower level tree structure.
 
+%---------------------------------------------------------------------------%
+%---------------------------------------------------------------------------%
+%---------------------------------------------------------------------------%
+%---------------------------------------------------------------------------%
+%---------------------------------------------------------------------------%
+%---------------------------------------------------------------------------%
+%---------------------------------------------------------------------------%
+%---------------------------------------------------------------------------%
+%---------------------------------------------------------------------------%
+%---------------------------------------------------------------------------%
+
+\section{Adding Other Graph Restrictions}
+
+So far we've looked at what kind of "subgraphs" we'd need to add. When there was a problem we faced, it became clear we needed to support less restrictive forms of graphs as well. We have covered some problems that were clear at first glance, but the question becomes: are there other problems we looked over that could benefit from another form of subgraph. We started out with trees as the "most restrictive approach for structuring projects". That was actually not the correct starting point if we really wanted to follow the process described at the start for getting to our module system. A more restrictive graph would be a list. Where each module can only import one other module, unlike a tree, where each module can import one or more modules. We've missed many graphs, and we can orient which we missed as follows:
+from most to least restrictive:
+
+... - trees - ... - acyclic graphs - ... - graphs
+
+Before trees we could place lists, or binary trees for instance. I see no reason why those structure enforcements would benefit a project. Perhaps there are use cases, but at the same time I feel like adding them to the module system would do more harm by increasing the complexity of the module system than it would benefit by posing more constraints than a tree in a few cases.
+
+Between trees and acyclic graphs, there could be a form of graph such as a tree with the extra possibility of parents also being able to access grandchildren. Again, This kind of enforcement seems not like it would do more good than harm when adding it to the module system.
+
+
+I've covered these examples just to show that there are more graph forms than we considered. I also showed why we didn't take some other graph forms. Even though I rejected the graph forms specified above, I have admittedly not covered all possible graph forms. Who knows there might be another graph form worth adding.
+
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -294,11 +319,16 @@ This picture shows how the “interfacing parent” is then again part of the tr
 
 \section{Conclusion}
 
-This module system “works” if it is possible to keep adding code with a roughly constant amount of context to keep in mind, where the amount of context is unrelated to the scale of the program. If a module system accomplishes that, then it “works” for the purpose stated here (scalability). Even if it works though, there might be value in looking for a module system which is more user friendly in some way. Although the priority here is scalability, there might be other kinds of module systems (perhaps OOP if done correctly) which provide scalability along with other benefits.
+This module system “works” if it is possible to keep adding code with a roughly constant amount of context to keep in mind, where the amount of context is unrelated to the scale of the program. If a module system accomplishes that, then it “works” for the purpose stated here (scalability). 
 
 
-I’m not saying that this module system is perfect, and I’m not saying we should stick to graph theory when trying to find better module systems. However, there’s a difference between working and being perfect. I think I have considered pretty much all the possibilities of how modules might need to be connected in projects. So I’ll state here without any formal proof that the described module system “works”.
+We can also say that every structure of a program can be made with the module system, since by definition the only structure that can't be made by acyclic graphs are cyclic graphs. In programming cyclic graphs introduce problems (circular dependencies), so we don't want that kind of structure for a program ever. So for all the structures a program might need, the current module system works.
 
+
+Even if it works though, that doesn't mean it is perfect. For instance, if the module system hadn't trees, but only clusters built from subclusters and so on ..., then the amount of context one would need to know about would still be unrelated to the size of the program. However by adding trees we've made it so programmers need to worry about even less context in some areas of code since trees pose more constraints. So even tho a module system of only clusters "works", a module system that has also trees besides clusters is better. Following the same rationale for other graph forms it is possible that there exist better module systems that use other graph forms too. We haven't found those graph forms, but we cannot say that it is impossible that they exist.
+
+
+Besides, there might be value in looking for a module system which is more user friendly in some way. Although the priority here is scalability, there might be other kinds of module systems (perhaps OOP if done correctly) which provide scalability along with other benefits.
 
 Even though I don’t want to restrict the search for better module systems to be in the bounds of graph theory, I also believe that module systems that fit graph theory are an untapped area and so it shouldn’t be ignored.
 
