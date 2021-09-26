@@ -248,6 +248,14 @@ The solution is clusters. Basically, they are parts of the program where modules
 
 This picture shows how the “interfacing parent” is then again part of the tree structure. The cluster encapsulates modules that can use each other in random ways (as long as the result is an acyclic directed graph). The children (File4\_0, File4\_1 and File4\_2) can be an “interfacing” parent of another lower level cluster or a parent from children in another lower level tree structure.
 
+When creating structures with clusters and subclusters there is again only a finite amount (unrelated to the size of the project) of context a programmer needs to know about when working on a module. For the interfacing parent that context is the same as for a parent in a tree. For the children of the interfacing parent that context is:
+
+\begin{enumerate}
+    \item The influence on the interfacing parent.
+    \item All the other clusterchildren of the interfacing parent.
+    \item Whatever subtrees/subclusters the current module is built from.
+\end{enumerate}
+
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
