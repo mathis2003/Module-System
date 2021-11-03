@@ -18,9 +18,9 @@ The terminology I'll use here is a mix of computer science jargon and graph theo
 
 To get a clear view of the options for which modules import which, all programs will be visualized as directed graphs. 
 The vertices are modules.
-The edges represent one module importing another 
-The module at the end of the arrow is the importing module. 
-The module at the start of the arrow is the module being imported. 
+The edges represent one module importing another.
+The module at the end of the arrow is the imported module. 
+The module at the start of the arrow is the module which does the import. 
 The reason why the module system will be explained using graph theory is because graph theory is a good model to describe and visualize this particular kind of module system. Another reason is that we can also abstract away from the actual module system and just think about graphs when this is necessary. It comes in handy when you want to be sure every form of module system (under graph theory constraints) has been considered.
 
 
@@ -48,8 +48,12 @@ The method to get to the resulting module system is as follows:
 
 \section{Building Programs With Trees}
 
-The most restrictive model which is scalable, is a tree. 
-In a tree, each node only has to worry about the effect on its parent, and the only “tools” a node needs to know about are its children and the core programming language itself.
+The most restrictive model would be a list. every module imports one other module (in the constraints of a tree).
+I don't think this model is worth adding to the module system as the practical use for it seems minimal.
+Next most restrictive option would be a binary tree. Every module can import 2 other modules (in the constraints of a tree). For this again, there seems to be no practical use.
+We could go on and on checking for N children whether it'd be advantageous to add the model to the module system, but i don't think a specific number will ever give us a good constraint.
+
+The next most restrictive model would be to not have a set number N, but to allow any number N of children. This gives us a regular tree, and I believe this could be useful in parts of a project that are formed by composition. This model is scalable, because no matter how deep a tree gets, each node only has to worry about the effect on its parent, and the only “tools” a node needs to know about are its children and the core programming language itself.
 
 \begin{tikzpicture}
 
@@ -108,7 +112,6 @@ There is something that bugs me about this way of structuring programs though. T
 
 Yes, in theory every programmer should get familiar with the correct context and only that context first before reading code in a module, but in reality assumptions will be made, and it will be a human source of error that could be avoided if there was some way of reusing code. Besides, even though it would theoretically be a “scalable” approach to software construction, it’s unnecessarily tedious and the lack of code reuse makes for incredibly slow progress.
 
-
 That is why a separate folder, independent from the project structure, should be made. In that folder go all the libraries, and a library can be imported from any module. This way a programmer has two options:
 
 \begin{enumerate}
@@ -117,9 +120,7 @@ That is why a separate folder, independent from the project structure, should be
 
 \end{enumerate}
 
-
 This separation makes programmers know what they’re getting into. Are they changing a module? Then the scope of the effect is known and limited, and can be checked for errors. Are they changing a library? Then they are aware that it can affect the entire program.
-
 
 \begin{tikzpicture}
 
@@ -153,6 +154,13 @@ This separation makes programmers know what they’re getting into. Are they cha
 
 \end{tikzpicture}
 
+In the case of libraries, you also want to structure them a different way. The goal of libraries is to offer the programmer certain functionalities. The problem a programmer can have when adding libraries to the project is that it's hard to find the right library between all your other libraries. That is why libraries should be organized with a file system. The goal is to make it as easy as possible for the programmer to find the correct library. So there must be a way of searching the correct library efficiently. The way that is achieved is by letting folders represent certain areas of functionality. For instance, a "Math" folder represents the area of math functionalities. In those folders are subfolders, which represent more specific areas. Think about having a "Calculus" and a "Discrete Math" subfolder in the "Math" folder. With this heuristic programmers can retrieve the needed functionality as quickly as possible.
+
+The goal of a library folder structure is different from the goal of a program structure.
+The library structure is made with the goal that a programmer must find the needed library as quickly as possbile.
+The program structure is made with the goal that it represents exactly the architecture of the program.
+Without a module system like this one, projects often tend to look like a hybrid between the two. It kind of reflects the structure of the program, but at the same time similar modules are often grouped together to make it clear which modules have a lot in common.
+
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -167,15 +175,14 @@ This separation makes programmers know what they’re getting into. Are they cha
 
 \section{Adding Clusters}
 
-Yet sometimes you know that you would like a module to be included in only a finite (let’s say n) amount of other modules. In that case you’re in a pickle. You now have two options really:
+Yet sometimes you know that you would like a module to be included in a finite (let’s say n) amount of other modules. In that case you’re in a pickle. You now have two options really:
 
 \begin{enumerate}
     \item Rewrite the module n times and make it a child of those n other modules.
     \item Write the code once and put it in the Library folder.
 \end{enumerate}
 
-In the first case, you’re back to that same old problem of not reusing code where you really could and should. In the second case, you’ve made a module accessible to all modules, even those who don’t need access. If we allow the programmer to import other modules without any restriction, then pretty much every module is global, just like libraries, and then we have defeated the point of decoupling certain parts and modules of the program from each other. So we need a way of allowing us to break the restrictions of a tree, while also not ending up with every module being accessible by every other module.
-
+In the first case, you’re back to that same old problem of not reusing code where you really could and should. In the second case, you have made a module accessible to all modules, even those who don’t need access. If we allow the programmer to import other modules without any restriction, then pretty much every module is global, just like libraries, and then we have defeated the point of decoupling certain parts and modules of the program from each other. So we need a way of allowing us to break the restrictions of a tree, while also not ending up with every module being accessible by every other module.
 
 \begin{tikzpicture}
 
@@ -209,7 +216,6 @@ In the first case, you’re back to that same old problem of not reusing code wh
 \draw[->,very thick] (v4) -- (v2);
 
 \end{tikzpicture}
-
 
 The solution is clusters. Basically, they are parts of the program where modules can import each other without forming a tree hierarchy. Those parts where that breaking of the rules happens are isolated, Basically there is one parent module acting as the “interface” of the cluster, and the children modules can access each other in this cluster. Children modules normally can’t access each other in a tree, but in a cluster they can. The “interfacing” parent module is a component of another structure, either a cluster or a tree. Note that in these clusters there is still the rule that the graph must be an acyclic directed graph, in order to avoid circular dependencies.
 
@@ -245,10 +251,9 @@ The solution is clusters. Basically, they are parts of the program where modules
 
 \end{tikzpicture}
 
-
 This picture shows how the “interfacing parent” is then again part of the tree structure. The cluster encapsulates modules that can use each other in random ways (as long as the result is an acyclic directed graph). The children (File4\_0, File4\_1 and File4\_2) can be an “interfacing” parent of another lower level cluster or a parent from children in another lower level tree structure.
 
-When creating structures with clusters and subclusters there is again only a finite amount (unrelated to the size of the project) of context a programmer needs to know about when working on a module. For the interfacing parent that context is the same as for a parent in a tree. For the children of the interfacing parent that context is:
+When creating structures with clusters and subclusters there is again only a finite amount of context a programmer needs to know about when working on a module. For the interfacing parent that context is the same as for a parent in a tree. For the children of the interfacing parent that context is:
 
 \begin{enumerate}
     \item The influence on the interfacing parent.
@@ -269,7 +274,7 @@ When creating structures with clusters and subclusters there is again only a fin
 
 \section{Adding Other Graph Restrictions}
 
-So far we've looked at what kind of "subgraphs" we'd need to add. When there was a problem we faced, it became clear we needed to support less restrictive forms of graphs as well. We have covered some problems that were clear at first glance, but the question becomes: are there other problems we looked over that could benefit from another form of subgraph. We started out with trees as the "most restrictive approach for structuring projects". That was actually not the correct starting point if we really wanted to follow the process described at the start for getting to our module system. A more restrictive graph would be a list. Where each module can only import one other module, unlike a tree, where each module can import one or more modules. We've missed many graphs, and we can orient which we missed as follows:
+So far we've looked at what kind of "subgraphs" we'd need to add. When there was a problem we faced, it became clear we needed to support less restrictive forms of graphs as well. We have covered some problems that were clear at first glance, but the question becomes: are there other problems we looked over that could benefit from another form of subgraph. We've missed many graphs, and we can orient which we missed as follows:
 from most to least restrictive:
 
 ... - trees - ... - acyclic graphs - ... - graphs
@@ -278,9 +283,9 @@ Before trees we could place lists, or binary trees for instance. I see no reason
 
 Between trees and acyclic graphs, there could be a form of graph such as a tree with the extra possibility of parents also being able to access grandchildren. Again, This kind of enforcement seems not like it would do more good than harm when adding it to the module system.
 
+Another model could be that each node is imported by multiple other nodes, but can only import one node. That would give an inverted tree. This again has seemingly no practical use.
 
 I've covered these examples just to show that there are more graph forms than we considered. I also showed why we didn't take some other graph forms. Even though I rejected the graph forms specified above, I have admittedly not covered all possible graph forms. Who knows there might be another graph form worth adding.
-
 
 %---------------------------------------------------------------------------%
 %---------------------------------------------------------------------------%
@@ -296,11 +301,11 @@ I've covered these examples just to show that there are more graph forms than we
 \section{Trivia}
 
 \begin{enumerate}
-    \item This idea of building clusters from clusters is called “Hierarchical Modularity” in graph theory.
+    \item This idea of building clusters from clusters is called “Hierarchical Modularity” in graph theory. The model I described for the module system is actually a bit more restrictive, as it allows a cluster to only have one connection to a subcluster. That connected node from the subgraph is here called the "interfacing parent".
 
     \item Confusingly, modules in graph theory jargon are synonyms for clusters. Here however, the definition of a module is just a node in the graph (a file). The definition of a cluster here is a directed acyclic graph of nodes.
     
-    \item It is not possible to save a project as a graph (at least as far as I know). So one might start wondering how it could be done. My solution is to have for every node a directory, containing two things:
+    \item It is not convenient to actually save a project as a graph. So one might start wondering how it could be done. My solution is to have for every node a directory, containing two things:
     
     \begin{enumerate}
         \item The actual source file with the code.
@@ -329,16 +334,12 @@ I've covered these examples just to show that there are more graph forms than we
 
 This module system “works” if it is possible to keep adding code with a roughly constant amount of context to keep in mind, where the amount of context is unrelated to the scale of the program. If a module system accomplishes that, then it “works” for the purpose stated here (scalability). 
 
-
 We can also say that every structure of a program can be made with the module system, since by definition the only structure that can't be made by acyclic graphs are cyclic graphs. In programming cyclic graphs introduce problems (circular dependencies), so we don't want that kind of structure for a program ever. So for all the structures a program might need, the current module system works.
 
+Even if it works though, that doesn't mean it is perfect. For instance, if the module system hadn't trees, but only clusters built from subclusters and so on ..., then the amount of context one would need to know about would still be unrelated to the size of the program. However by adding trees we've made it so programmers need to worry about even less context in some areas of code since trees pose more constraints. So even though a module system of only clusters "works", a module system that has also trees besides clusters is better. Following the same rationale for other graph forms it is possible that there exist better module systems that use other graph forms too. We haven't found those graph forms, but we cannot say that it is impossible that they exist.
 
-Even if it works though, that doesn't mean it is perfect. For instance, if the module system hadn't trees, but only clusters built from subclusters and so on ..., then the amount of context one would need to know about would still be unrelated to the size of the program. However by adding trees we've made it so programmers need to worry about even less context in some areas of code since trees pose more constraints. So even tho a module system of only clusters "works", a module system that has also trees besides clusters is better. Following the same rationale for other graph forms it is possible that there exist better module systems that use other graph forms too. We haven't found those graph forms, but we cannot say that it is impossible that they exist.
+Besides, there might be value in looking for a module system which is more user friendly in some way. Although the priority here is scalability, there might be other kinds of module systems (perhaps Object Oriented if done correctly) which provide scalability along with other benefits.
 
-
-Besides, there might be value in looking for a module system which is more user friendly in some way. Although the priority here is scalability, there might be other kinds of module systems (perhaps OOP if done correctly) which provide scalability along with other benefits.
-
-Even though I don’t want to restrict the search for better module systems to be in the bounds of graph theory, I also believe that module systems that fit graph theory are an untapped area and so it shouldn’t be ignored.
-
+Even though I don’t want to restrict the search for better module systems to be in the bounds of graph theory, I also believe that module systems that fit graph theory are an untapped area and so they shouldn’t be ignored.
 
 \end{document}
