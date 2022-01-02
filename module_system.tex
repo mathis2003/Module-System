@@ -1,3 +1,5 @@
+
+   
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{tikz}
@@ -12,7 +14,10 @@
 
 \section{Introduction}
 The module system I'll describe here has only one goal: Scalability.
-I'll say scalability is achieved when the amount of context that a programmer needs to be aware of when working on a module is independent of the scale of the codebase.
+I'll say scalability for a part of the codebase is achieved when the amount of context that a programmer needs to be aware of when working on that part is independent of the scale of the codebase.
+A part of the codebase being scalable is defined as that part being in a comprehensible state, which is achieved by keeping the context around it to a minimum, there are possibly some other factors that might make it harder to comprehend the codebase, but only a too large amount of context can make it impossible.
+It is important to note that some parts in a codebase might be scalable even when others aren't.
+Scaling is defined as making changes to the codebase and not ending up with a codebase where the changed parts are left in an uncomprehensible state.
 
 The terminology I'll use here is a mix of computer science jargon and graph theory jargon. There is a name collision for "Module". In this article a Module means a file. When represented in the graphs the module is a single node.
 
