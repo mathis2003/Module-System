@@ -1,3 +1,3 @@
 # Module-System
 
-Article(s) on module systems
+Articles on module systems
